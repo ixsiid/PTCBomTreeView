@@ -10,12 +10,17 @@ import (
 	"errors"
 	"strconv"
 	"regexp"
+    "path/filepath"
 )
 
 type Translator struct{
 	wordA []string
 	wordB []string
 	size int
+}
+
+func getFileNameWithoutExt(path string) string {
+    return path[:len(path)-len(filepath.Ext(path))]
 }
 
 func (t *Translator) Read(file string) {
@@ -62,6 +67,16 @@ func (t Translator) PrintAll() {
 func main() {
 	var t Translator
 	t.Read("translate.txt")
+		
+	f, err := os.Open("template.html")
+	if err != nil {
+		fmt.Println("Error: can not open template.html")
+		os.Exit(1)
+	}
+
+	defer f.Close()
+	buffer, err := ioutil.ReadAll(f)
+	template := string(buffer)
 
 	for i, arg := range os.Args{
 		if i == 0 {
@@ -76,10 +91,16 @@ func main() {
 		}
 
 		json, _ := json.Marshal(tree)
-		json_string := string(json)
+		jsonString := string(json)
 
-		fmt.Println(json_string)
+		htmlFile := getFileNameWithoutExt(arg) + ".html"
+		fmt.Println(htmlFile)
+		html := strings.Replace(template, `{"name":"$JSON_DATA$"}`, jsonString, -1)
+		ioutil.WriteFile(htmlFile, []byte(html), os.ModePerm)
+
+		fmt.Println("Writed " + htmlFile)
 	}
+	fmt.Println("Done.")
 }
 
 type Element struct {
@@ -92,7 +113,7 @@ type Element struct {
     Supplier string `json:"supplier"`
     Material string `json:"material"`
 	Finish   string `json:"finish"`
-	Child []*Element `json:"Child"`
+	Child []*Element `json:"child"`
 }
 
 func generate(file string, t Translator) (Element, error) {
@@ -153,7 +174,6 @@ func generate(file string, t Translator) (Element, error) {
 			p.Finish = values[8]
 
 			t.Child = append(t.Child, &p)
-			t.Quantity++
 			if p.Type == "SubAssembly" {
 				subAssembly[p.Name] = &p
 			}

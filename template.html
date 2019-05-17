@@ -1,0 +1,71 @@
+<html>
+
+<head>
+    <script type="application/json" id="tree">
+        {"name":"$JSON_DATA$"}
+    </script>
+    <style>
+        td {
+            min-width: 2em;
+        }
+
+        th {
+            text-transform: capitalize;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        Object.defineProperty(HTMLElement.prototype, "add", {
+            value: function (child, returnParent) {
+                this.appendChild(child);
+                return returnParent ? this : child;
+            }
+        });
+        const $c = name => document.createElement(name);
+        const $t = text => document.createTextNode(text);
+        const $ = id => document.getElementById(id);
+        const $time = (count, func) => { for (let i = 0; i < count; i++) func(i); }
+
+        const tree = JSON.parse($("tree").textContent);
+
+        const table = $c("table");
+        document.body.appendChild(table);
+
+        table.add($c("caption")).add($t((tree.project || tree.name) + " BOM"));
+
+        const header = ["name", "quantity", "supplier", "material", "finish"]
+
+        const thead = table.add($c("thead"));
+        header.map(x => {
+            const th = thead.add($c("th"));
+            th.add($t(x));
+            th.classList.add(x);
+        });
+        const tbody = table.add($c("tbody"));
+
+        const maxColumn = 30;
+
+        function generate(element, index) {
+            const tr = tbody.add($c("tr"));
+            $time(index, () => tr.add($c("td")));
+            header.map(x => {
+                const td = tr.add($c("td"));
+                td.add($t(element[x]));
+                td.classList.add(x);
+            });
+
+            if (element.child) return Math.max.apply(null, element.child.map(x => generate(x, index + 1)));
+            return index;
+        }
+
+        const v = generate(tree, 0);
+        [].map.call(document.getElementsByClassName("name"), nameElement => {
+            const s = [].indexOf.call(nameElement.parentElement.children, nameElement);
+            nameElement.setAttribute("colspan", v - s + 1);
+        });
+    </script>
+</body>
+
+</html>
