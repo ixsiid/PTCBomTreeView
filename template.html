@@ -9,8 +9,26 @@
             min-width: 2em;
         }
 
-        th {
+        td.quantity {
+            text-align: end;
+        }
+
+        thead th {
+            padding: 0.2ex 1em;
             text-transform: capitalize;
+        }
+
+        thead tr {
+            background-color: #999;
+            color: white;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #eee;
         }
     </style>
 </head>
@@ -38,8 +56,9 @@
         const header = ["name", "quantity", "supplier", "material", "finish"]
 
         const thead = table.add($c("thead"));
+        const headerRow = thead.add($c("tr"));
         header.map(x => {
-            const th = thead.add($c("th"));
+            const th = headerRow.add($c("th"));
             th.add($t(x));
             th.classList.add(x);
         });
