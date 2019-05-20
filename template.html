@@ -35,6 +35,15 @@
 
 <body>
     <script>
+        const projectPattern = element => {
+            const match = element.name.match(projectPattern.pattern);
+            if (match) {
+                element.project = match[1];
+                element.name = element.name.replace(projectPattern.pattern, '');
+            }
+        };
+        projectPattern.pattern = new RegExp($PROJECT_PATTERN$, 'i');
+
         Object.defineProperty(HTMLElement.prototype, "add", {
             value: function (child, returnParent) {
                 this.appendChild(child);
@@ -53,7 +62,7 @@
 
         table.add($c("caption")).add($t((tree.project || tree.name) + " BOM"));
 
-        const header = ["name", "quantity", "supplier", "material", "finish"]
+        const header = ["name", "project", "quantity", "supplier", "material", "finish"]
 
         const thead = table.add($c("thead"));
         const headerRow = thead.add($c("tr"));
@@ -67,6 +76,9 @@
         const maxColumn = 30;
 
         function generate(element, index) {
+            // データ変換
+            projectPattern(element);
+
             const tr = tbody.add($c("tr"));
             $time(index, () => tr.add($c("td")));
             header.map(x => {

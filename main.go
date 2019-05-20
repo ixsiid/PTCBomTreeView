@@ -13,14 +13,14 @@ import (
     "path/filepath"
 )
 
+func getFileNameWithoutExt(path string) string {
+    return path[:len(path)-len(filepath.Ext(path))]
+}
+
 type Translator struct{
 	wordA []string
 	wordB []string
 	size int
-}
-
-func getFileNameWithoutExt(path string) string {
-    return path[:len(path)-len(filepath.Ext(path))]
 }
 
 func (t *Translator) Read(file string) {
@@ -51,9 +51,9 @@ func (t *Translator) Read(file string) {
 	}
 }
 
-func (t Translator) Translate(text string) string {
+func (t Translator) Translate(text string, start string, end string) string {
 	for i := 0; i < t.size; i++ {
-		text = strings.Replace(text, t.wordA[i], t.wordB[i], -1)
+		text = strings.Replace(text, start + t.wordA[i] + end, t.wordB[i], -1)
 	}
 	return text
 }
@@ -79,11 +79,18 @@ func main() {
 	template := string(buffer)
 
 	for i, arg := range os.Args{
+
 		if i == 0 {
 			fmt.Println("Generate bom tree")
 			continue
 		}
 		fmt.Println(i, ": Start '", arg, "'")
+		
+		arg = filepath.Clean(arg)
+		var configure Translator
+		configure.Read(filepath.Join(filepath.Dir(arg), "template.conf"))
+
+		
 		tree, err := generate(arg, t)
 		if err != nil {
 			fmt.Println(err)
@@ -96,6 +103,9 @@ func main() {
 		htmlFile := getFileNameWithoutExt(arg) + ".html"
 		fmt.Println(htmlFile)
 		html := strings.Replace(template, `{"name":"$JSON_DATA$"}`, jsonString, -1)
+		html = configure.Translate(html, "$", "$")
+
+
 		ioutil.WriteFile(htmlFile, []byte(html), os.ModePerm)
 
 		fmt.Println("Writed " + htmlFile)
@@ -127,7 +137,7 @@ func generate(file string, t Translator) (Element, error) {
 	buffer, err := ioutil.ReadAll(f)
 	var UTF8_BOM = string([]byte{239, 187, 191})
 	var text string = strings.Replace(strings.TrimLeft(string(buffer), UTF8_BOM), "\r\n", "\n", -1)
-	text = t.Translate(text)
+	text = t.Translate(text, "", "")
 
 	subAssembly := map[string]*Element{}
 	var root *Element
