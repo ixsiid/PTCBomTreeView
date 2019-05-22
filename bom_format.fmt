@@ -1,7 +1,7 @@
 .breakdown
 %$type %$name
-.row %$quantity[6d]; %$type[12s]; %$name[40s]; %$project; %$number; %$class; %$supplier; %$material; %$finish
+.row %$quantity[6d]; %$type[12s]; %$name[40s]; %project[16s]; %number[16s]; %class[2s]; %supplier[32s]; %material[40s]; %finish[40s]
 
 .summary
 PartsList %$name
-.row %$quantity[6d]; %$type[12s]; %$name[40s]; %$project; %$number; %$class; %$supplier; %$material; %$finish
+.row %$quantity[6d]; %$type[12s]; %$name[40s]; %project[16s]; %number[16s]; %class[2s]; %supplier[32s]; %material[40s]; %finish[40s]

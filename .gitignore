@@ -12,5 +12,6 @@
 *.out
 
 sample
+remo3
 
 !bin/*.windows-amd64.exe
