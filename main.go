@@ -168,11 +168,15 @@ func generate(file string, t Translator) (Element, error) {
 
 		for _, element := range elements {
 			var p Element
-			values := strings.Split(space.ReplaceAllString(strings.Trim(element, " "), " "), " ")
+			values := strings.Split(space.ReplaceAllString(strings.Trim(element, " "), " "), " *")
+			fmt.Println(values)
 			if len(values) < 2 {
 				continue
 			}
 			values = append(values, []string{"", "", "", "", "", "", "", "", ""}...)
+			for i, v := range values {
+				values[i] = strings.Trim(v, " ")
+			}
 			p.Quantity, _ = strconv.Atoi(values[0])
 			p.Type = values[1]
 			p.Name = values[2]
@@ -182,7 +186,7 @@ func generate(file string, t Translator) (Element, error) {
 			p.Class = values[6]
 			p.Supplier = values[7]
 			p.Finish = values[8]
-
+			
 			t.Child = append(t.Child, &p)
 			if p.Type == "SubAssembly" {
 				subAssembly[p.Name] = &p
