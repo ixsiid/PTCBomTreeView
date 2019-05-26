@@ -182,9 +182,9 @@ func generate(file string, t Translator) (Element, error) {
 			p.Name = values[2]
 			p.Project = values[3]
 			p.Number = values[4]
-			p.Material = values[5]
-			p.Class = values[6]
-			p.Supplier = values[7]
+			p.Class = values[5]
+			p.Supplier = values[6]
+			p.Material = values[7]
 			p.Finish = values[8]
 			
 			t.Child = append(t.Child, &p)

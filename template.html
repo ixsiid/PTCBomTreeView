@@ -87,7 +87,7 @@
                 td.classList.add(x);
             });
 
-            if (element.child) return Math.max.apply(null, element.child.map(x => generate(x, index + 1)));
+            if (element.class != 'E' && element.child) return Math.max.apply(null, element.child.map(x => generate(x, index + 1)));
             return index;
         }
 
