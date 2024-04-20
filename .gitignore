@@ -15,3 +15,7 @@ sample
 remo3
 
 !bin/*.windows-amd64.exe
+
+*.csv
+*.bom.*
+*.bom
