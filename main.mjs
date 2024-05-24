@@ -1,6 +1,11 @@
 import { readFile } from 'fs/promises';
 
-const bom_file = process.argv[2];
+const [bom_file, sep] = (args => {
+	const file = args.filter(x => x.indexOf('-') != 0)[0];
+	const sep = args.find(x => x === '-t') ? '\t' : ',';
+
+	return [file, sep];
+})(process.argv.filter((_, i) => i >= 2));
 
 console.error(`Start generate bom csv from ${bom_file}`);
 
@@ -55,10 +60,12 @@ readFile(bom_file)
 			if (x.type === 'Part') {
 				return parts.rows.find(r => r.name === x.name);
 			} else if (x.type === 'SubAssembly') {
+				const rows = (x.material === 'PCBA') ? [] : sections.find(s => s.title === x.name).rows.map(sx => parse(sx));
 				return {
 					type: 'SubAssembly',
 					name: x.name,
-					rows: sections.find(s => s.title === x.name).rows.map(sx => parse(sx)),
+					quantity: x.quantity,
+					rows,
 				};
 			}
 			console.error(x);
@@ -71,16 +78,16 @@ readFile(bom_file)
 		};
 	})
 	.then(s => {
-		console.log('level,,name,type,material,finish,quantity');
+		console.log(['level', '' , 'name', 'quantity', 'type', 'material', 'finish'].join(sep));
 		// console.log('------------------------------------------')
-		console.log(`,ASSY,${s.title}`);
+		console.log(['', 'ASSY', 's.title'].join(sep));
 
 		const print = (row, level) => {
 			const n = '#'.repeat(level);
 			if (row.type === 'Part') {
-				console.log(`${n},PART,${row.name},,${row.material},${row.finish},${row.quantity}`);
+				console.log([n, 'PART', row.name, row.quantity, '', row.material, row.finish].join(sep));
 			} else if (row.type === 'SubAssembly') {
-				console.log(`${n},ASSY,${row.name}`);
+				console.log([n, 'ASSY', row.name, row.quantity].join(sep));
 				row.rows.forEach(r => print(r, level + 1));
 			} else {
 				console.error(row);
